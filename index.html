@@ -148,6 +148,106 @@ canvas {
 }
 .shake-btn:hover { background: #ffe08a; transform: translateY(-1px); }
 .shake-btn:active { transform: translateY(2px); }
+.toolbar {
+  width: 100%;
+  margin-top: 16px;
+  padding: 12px 14px;
+  background: rgba(0, 0, 0, 0.22);
+  border-radius: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.3);
+}
+.tool-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.9);
+}
+input[type="color"] {
+  width: 38px;
+  height: 30px;
+  border: 2px solid #fff;
+  border-radius: 8px;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+.swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.9);
+  cursor: pointer;
+  padding: 0;
+}
+.swatch.active {
+  outline: 2px solid #f4d06f;
+  outline-offset: 2px;
+}
+.size-select, .mode-select, .save-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-weight: 800;
+  font-size: 0.78rem;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+}
+.size-select, .mode-select {
+  background: #fff;
+  color: #5c1010;
+}
+.dpad-wrap {
+  width: 100%;
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+}
+.dpad {
+  display: grid;
+  gap: 6px;
+  background: rgba(0,0,0,0.22);
+  padding: 10px;
+  border-radius: 14px;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.3);
+}
+.dpad.classic-pad { grid-template-columns: repeat(3, 44px); grid-template-rows: repeat(3, 44px); }
+.dpad.hex-pad { grid-template-columns: repeat(5, 44px); grid-template-rows: repeat(3, 44px); }
+.dpad button {
+  border: 2px solid #fff;
+  background: #f8f8f8;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  line-height: 1;
+  touch-action: none;
+}
+.dpad button:active, .dpad button.held { background: #f4d06f; transform: scale(0.94); }
+.dpad .pad-label {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.85);
+}
+.save-btn {
+  background: #1e2024;
+  color: #f4d06f;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+  transition: transform 0.1s;
+}
+.save-btn:hover { transform: translateY(-1px); }
+.save-btn:active { transform: translateY(2px); }
 .instructions {
   margin-top: 18px;
   font-size: 0.85rem;
@@ -187,8 +287,65 @@ kbd {
       <span class="dial-label">Vertical</span>
     </div>
   </div>
+  <div class="toolbar">
+    <div class="tool-group">
+      <span>Color</span>
+      <input type="color" id="colorPicker" value="#333633" title="Pick line color">
+      <button class="swatch active" data-color="#333633" style="background:#333633" title="Classic gray"></button>
+      <button class="swatch" data-color="#c1121f" style="background:#c1121f" title="Red"></button>
+      <button class="swatch" data-color="#1d4ed8" style="background:#1d4ed8" title="Blue"></button>
+      <button class="swatch" data-color="#0a7a3a" style="background:#0a7a3a" title="Green"></button>
+      <button class="swatch" data-color="#6d28d9" style="background:#6d28d9" title="Purple"></button>
+    </div>
+    <div class="tool-group">
+      <span>Size</span>
+      <select id="sizeSelect" class="size-select">
+        <option value="400x300">Small 400×300</option>
+        <option value="600x400" selected>Medium 600×400</option>
+        <option value="800x500">Large 800×500</option>
+        <option value="900x600">XL 900×600</option>
+      </select>
+    </div>
+    <div class="tool-group">
+      <span>Move</span>
+      <select id="modeSelect" class="mode-select">
+        <option value="classic" selected>8-way (4 + diagonals)</option>
+        <option value="hex">6-way Hex (QWE/ASD)</option>
+      </select>
+    </div>
+    <div class="tool-group">
+      <button class="save-btn" id="saveBtn">&#128190; Save PNG</button>
+    </div>
+  </div>
+  <div class="dpad-wrap">
+    <div id="dpadClassic" class="dpad classic-pad">
+      <span class="pad-label">Hold to draw — 8 directions</span>
+      <button data-move="upLeft" title="Up-Left (Q)">↖</button>
+      <button data-move="up" title="Up (W / ↑)">↑</button>
+      <button data-move="upRight" title="Up-Right (E)">↗</button>
+      <button data-move="left" title="Left (A / ←)">←</button>
+      <button data-move="center" title="Center stylus">·</button>
+      <button data-move="right" title="Right (D / →)">→</button>
+      <button data-move="downLeft" title="Down-Left (Z)">↙</button>
+      <button data-move="down" title="Down (S / ↓)">↓</button>
+      <button data-move="downRight" title="Down-Right (C)">↘</button>
+    </div>
+    <div id="dpadHex" class="dpad hex-pad" hidden>
+      <span class="pad-label">Hex mode — 6 directions (Q W E / A S D)</span>
+      <span></span>
+      <button data-hex="upLeft" title="Up-Left (Q)">↖</button>
+      <button data-hex="up" title="Up (W)">↑</button>
+      <button data-hex="upRight" title="Up-Right (E)">↗</button>
+      <span></span>
+      <span></span>
+      <button data-hex="downLeft" title="Down-Left (A)">↙</button>
+      <button data-hex="down" title="Down (S)">↓</button>
+      <button data-hex="downRight" title="Down-Right (D)">↘</button>
+      <span></span>
+    </div>
+  </div>
 </div>
-<p class="instructions">Use &larr; &rarr; &uarr; &darr; arrow keys (or WASD), or drag the white dials. Press Space to shake.</p>
+<p class="instructions">Classic: ← → ↑ ↓ / WASD, diagonals Q E Z C or hold two keys. Hex 6-way: Q W E A S D. Drag dials. Space to shake.</p>
 <script>
 const canvas = document.getElementById('screen');
 const ctx = canvas.getContext('2d');
@@ -196,6 +353,36 @@ const toyFrame = document.getElementById('toyFrame');
 const dialX = document.getElementById('dialX');
 const dialY = document.getElementById('dialY');
 const shakeBtn = document.getElementById('shakeBtn');
+const colorPicker = document.getElementById('colorPicker');
+const sizeSelect = document.getElementById('sizeSelect');
+const saveBtn = document.getElementById('saveBtn');
+const swatches = document.querySelectorAll('.swatch');
+const modeSelect = document.getElementById('modeSelect');
+const dpadClassic = document.getElementById('dpadClassic');
+const dpadHex = document.getElementById('dpadHex');
+let moveMode = 'classic';
+const dpadHeld = {};
+// Hex 6-way unit vectors (pointy-top): Q W E / A S D
+const SQ3_2 = Math.sqrt(3) / 2;
+const HEX_VEC = {
+  up: [0, -1],
+  upRight: [SQ3_2, -0.5],
+  downRight: [SQ3_2, 0.5],
+  down: [0, 1],
+  downLeft: [-SQ3_2, 0.5],
+  upLeft: [-SQ3_2, -0.5]
+};
+const CLASSIC_VEC = {
+  up: [0, -1], upRight: [1, -1], right: [1, 0], downRight: [1, 1],
+  down: [0, 1], downLeft: [-1, 1], left: [-1, 0], upLeft: [-1, -1]
+};
+function normalize(dx, dy) {
+  const len = Math.hypot(dx, dy);
+  if (len === 0) return [0, 0];
+  return [dx / len, dy / len];
+}
+const BG_COLOR = '#c5c9c4';
+let lineColor = '#333633';
 // Stylus state
 let x = canvas.width / 2;
 let y = canvas.height / 2;
@@ -204,17 +391,20 @@ let angleY = 0;
 const speed = 2.2;
 const keys = {};
 // Configure line style (classic dark aluminum powder look)
-function initCanvas() {
-  ctx.fillStyle = '#c5c9c4';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+function applyLineStyle() {
   ctx.lineWidth = 2.5;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
-  ctx.strokeStyle = '#333633';
+  ctx.strokeStyle = lineColor;
+}
+function initCanvas() {
+  ctx.fillStyle = BG_COLOR;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  applyLineStyle();
   drawStylusDot();
 }
 function drawStylusDot() {
-  ctx.fillStyle = '#333633';
+  ctx.fillStyle = lineColor;
   ctx.beginPath();
   ctx.arc(x, y, 1.25, 0, Math.PI * 2);
   ctx.fill();
@@ -249,14 +439,45 @@ window.addEventListener('keydown', (e) => {
 window.addEventListener('keyup', (e) => {
   keys[e.code] = false;
 });
+// Movement: classic 8-way + hex 6-way
+function getMoveDelta() {
+  let dx = 0, dy = 0;
+  if (moveMode === 'hex') {
+    // 6 evenly-spaced directions: Q W E / A S D
+    const held = [];
+    if (keys['KeyW'] || keys['ArrowUp']) held.push(HEX_VEC.up);
+    if (keys['KeyE']) held.push(HEX_VEC.upRight);
+    if (keys['KeyD'] || keys['ArrowRight']) held.push(HEX_VEC.downRight);
+    if (keys['KeyS'] || keys['ArrowDown']) held.push(HEX_VEC.down);
+    if (keys['KeyA'] || keys['ArrowLeft']) held.push(HEX_VEC.downLeft);
+    if (keys['KeyQ']) held.push(HEX_VEC.upLeft);
+    // On-screen hex pad
+    for (const k in dpadHeld) {
+      if (dpadHeld[k] && HEX_VEC[k]) held.push(HEX_VEC[k]);
+    }
+    held.forEach(([vx, vy]) => { dx += vx; dy += vy; });
+    [dx, dy] = normalize(dx, dy);
+    return [dx * speed, dy * speed];
+  }
+  // Classic: cardinals (arrows/WASD, combinable for diagonals)
+  // + single-key diagonals Q E Z C + on-screen pad
+  if (keys['ArrowLeft'] || keys['KeyA']) dx -= 1;
+  if (keys['ArrowRight'] || keys['KeyD']) dx += 1;
+  if (keys['ArrowUp'] || keys['KeyW']) dy -= 1;
+  if (keys['ArrowDown'] || keys['KeyS']) dy += 1;
+  if (keys['KeyQ']) { dx -= 1; dy -= 1; }
+  if (keys['KeyE']) { dx += 1; dy -= 1; }
+  if (keys['KeyZ']) { dx -= 1; dy += 1; }
+  if (keys['KeyC']) { dx += 1; dy += 1; }
+  for (const k in dpadHeld) {
+    if (dpadHeld[k] && CLASSIC_VEC[k]) { dx += CLASSIC_VEC[k][0]; dy += CLASSIC_VEC[k][1]; }
+  }
+  [dx, dy] = normalize(dx, dy);
+  return [dx * speed, dy * speed];
+}
 // Smooth animation loop for keyboard movement
 function updateLoop() {
-  let dx = 0;
-  let dy = 0;
-  if (keys['ArrowLeft'] || keys['KeyA']) dx -= speed;
-  if (keys['ArrowRight'] || keys['KeyD']) dx += speed;
-  if (keys['ArrowUp'] || keys['KeyW']) dy -= speed;
-  if (keys['ArrowDown'] || keys['KeyS']) dy += speed;
+  const [dx, dy] = getMoveDelta();
   if (dx !== 0 || dy !== 0) {
     moveStylus(dx, dy);
   }
@@ -328,11 +549,84 @@ function shakeScreen() {
   }, 60);
 }
 shakeBtn.addEventListener('click', shakeScreen);
+// --- Color picker ---
+function setColor(c) {
+  lineColor = c;
+  ctx.strokeStyle = lineColor;
+  colorPicker.value = c;
+  swatches.forEach(s => s.classList.toggle('active', s.dataset.color.toLowerCase() === c.toLowerCase()));
+  drawStylusDot();
+}
+colorPicker.addEventListener('input', (e) => setColor(e.target.value));
+swatches.forEach(s => s.addEventListener('click', () => setColor(s.dataset.color)));
+// --- Resizable canvas (preserves drawing) ---
+function resizeCanvas(w, h) {
+  w = Math.max(200, Math.min(1200, Math.round(w)));
+  h = Math.max(150, Math.min(800, Math.round(h)));
+  const tmp = document.createElement('canvas');
+  tmp.width = canvas.width;
+  tmp.height = canvas.height;
+  tmp.getContext('2d').drawImage(canvas, 0, 0);
+  canvas.width = w;
+  canvas.height = h;
+  ctx.fillStyle = BG_COLOR;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(tmp, 0, 0);
+  applyLineStyle();
+  x = Math.max(4, Math.min(canvas.width - 4, x));
+  y = Math.max(4, Math.min(canvas.height - 4, y));
+  // If stylus was centered on old size, keep it centered is less surprising for big jumps:
+  // (comment out if you prefer to always keep exact x,y)
+}
+sizeSelect.addEventListener('change', () => {
+  const [w, h] = sizeSelect.value.split('x').map(Number);
+  resizeCanvas(w, h);
+});
+// --- Save as PNG ---
+function saveDrawing() {
+  const link = document.createElement('a');
+  link.download = `etch-a-sketch-${canvas.width}x${canvas.height}.png`;
+  link.href = canvas.toDataURL('image/png');
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+}
+saveBtn.addEventListener('click', saveDrawing);
+// --- Move mode + on-screen D-pads (hold to draw) ---
+function setMoveMode(m) {
+  moveMode = m;
+  const isHex = m === 'hex';
+  dpadClassic.hidden = isHex;
+  dpadHex.hidden = !isHex;
+}
+modeSelect.addEventListener('change', () => setMoveMode(modeSelect.value));
+function bindHoldButton(btn, name) {
+  const start = (e) => {
+    e.preventDefault();
+    if (name === 'center') {
+      x = canvas.width / 2; y = canvas.height / 2;
+      drawStylusDot();
+      return;
+    }
+    dpadHeld[name] = true;
+    btn.classList.add('held');
+    try { btn.setPointerCapture(e.pointerId); } catch (_) {}
+  };
+  const stop = () => { dpadHeld[name] = false; btn.classList.remove('held'); };
+  btn.addEventListener('pointerdown', start);
+  btn.addEventListener('pointerup', stop);
+  btn.addEventListener('pointercancel', stop);
+  btn.addEventListener('pointerleave', stop);
+  btn.addEventListener('contextmenu', (e) => e.preventDefault());
+}
+document.querySelectorAll('#dpadClassic [data-move]').forEach(b => bindHoldButton(b, b.dataset.move));
+document.querySelectorAll('#dpadHex [data-hex]').forEach(b => bindHoldButton(b, b.dataset.hex));
+setMoveMode(modeSelect.value);
 // Initialize everything
 setupDialDrag(dialX, 'x');
 setupDialDrag(dialY, 'y');
 initCanvas();
 requestAnimationFrame(updateLoop);
 </script>
-<script>window.__CF$cv$params={r:'a5fdb73d0c0497c0',t:'MTc5NTU3ODkwNQ==',u:'01a210d7c5667616bfa934e2c4172a31',ut:'6CsmceKKgZTEzzyzpzF.vRmF4001CWOnPqRlcRcvsNo-1795578905-1.2.1.1-JL6whDtVnsqiO2PreD7aIqLOa7cibGpouqx4CmAkh31QcZeXMiknqKTdywwTuhhy0jlKWzfjE1to.Mnln.9m3vsvLfZGUmpV1n6jP8xksHo',i:60};(function(){if(!document.body)return;var l=window.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/precursor/main.js?ray=a5fdb73d0c0497c0',s=document.createElement('script');s.src=o?new URL(u,o).href:u;document.head.appendChild(s);})();</script></body>
+<script>window.__CF$cv$params={r:'a5fdbe23091197c0',t:'MTc5NTU3OTE4Nw==',u:'01a210dc14c8703a9cd8530e7c30304a',ut:'BefVmjtVWECjPhyyuSdFdk_6gln_h6CQA3yWWrcBauY-1795579188-1.2.1.1-sn7b1_GvqxYNH_dUhXWzzjCY98GnCwA2Qt.xsJ17sQzR8GwAVl_Z2LLykFQO48opa61c2hQqxVLD4kqrWWaOo5Aq1i0rYTpp05RmIKrO0ik',i:60};(function(){if(!document.body)return;var l=window.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/precursor/main.js?ray=a5fdbe23091197c0',s=document.createElement('script');s.src=o?new URL(u,o).href:u;document.head.appendChild(s);})();</script></body>
 </html>
