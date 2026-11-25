@@ -1,0 +1,405 @@
+Here is a complete, single-file .html version with all the CSS and JavaScript embedded inline. You can save this code as etch-a-sketch.html and open it directly in any web browser—no external files or internet connection required.
+It includes support for keyboard arrow keys (including diagonals when holding two keys), clicking and dragging the dials with your mouse or touch screen, and a shake animation to clear the screen.
+html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Etch A Sketch</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #1e2024;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    .toy-frame {
+      background: linear-gradient(145deg, #e02828, #b51717);
+      padding: 24px 36px 28px 36px;
+      border-radius: 28px;
+      box-shadow: 
+        0 24px 50px rgba(0, 0, 0, 0.6),
+        inset 0 4px 8px rgba(255, 255, 255, 0.35),
+        inset 0 -6px 12px rgba(90, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 95vw;
+      transition: transform 0.1s;
+    }
+
+    .toy-frame.shaking {
+      animation: shake 0.55s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+      15% { transform: translate3d(-14px, -6px, 0) rotate(-3deg); }
+      30% { transform: translate3d(14px, 6px, 0) rotate(3deg); }
+      45% { transform: translate3d(-14px, 4px, 0) rotate(-2deg); }
+      60% { transform: translate3d(14px, -4px, 0) rotate(2deg); }
+      75% { transform: translate3d(-8px, 2px, 0) rotate(-1deg); }
+      90% { transform: translate3d(8px, -2px, 0) rotate(1deg); }
+    }
+
+    .header {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 14px;
+      color: #f4d06f;
+      text-shadow: 1px 2px 3px rgba(0, 0, 0, 0.45);
+    }
+
+    .header .sub {
+      font-size: 0.85rem;
+      letter-spacing: 2px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .header .brand {
+      font-family: "Brush Script MT", "Georgia", cursive, serif;
+      font-size: 2.1rem;
+      font-style: italic;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    .screen-bezel {
+      background: #961414;
+      padding: 8px;
+      border-radius: 16px;
+      box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.6);
+    }
+
+    canvas {
+      display: block;
+      background-color: #c5c9c4;
+      border-radius: 10px;
+      box-shadow: inset 0 6px 18px rgba(0, 0, 0, 0.28);
+      max-width: 100%;
+      height: auto;
+    }
+
+    .controls {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 22px;
+      padding: 0 8px;
+    }
+
+    .dial-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dial {
+      width: 78px;
+      height: 78px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #ffffff, #dcdcdc 70%, #b0b0b0);
+      box-shadow: 
+        0 8px 16px rgba(0, 0, 0, 0.45),
+        inset 0 2px 4px rgba(255, 255, 255, 0.9),
+        0 0 0 4px #e8e8e8;
+      position: relative;
+      cursor: grab;
+      touch-action: none;
+    }
+
+    .dial:active {
+      cursor: grabbing;
+    }
+
+    /* Dial notch indicator so rotation is visible */
+    .dial::after {
+      content: "";
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 6px;
+      height: 14px;
+      background-color: #888;
+      border-radius: 3px;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.4);
+    }
+
+    .dial-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .center-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .shake-btn {
+      background: #f4d06f;
+      color: #5c1010;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+      transition: transform 0.1s, background-color 0.15s;
+    }
+
+    .shake-btn:hover {
+      background: #ffe08a;
+      transform: translateY(-1px);
+    }
+
+    .shake-btn:active {
+      transform: translateY(2px);
+    }
+
+    .instructions {
+      margin-top: 18px;
+      font-size: 0.85rem;
+      color: #9aa0a6;
+      text-align: center;
+    }
+
+    kbd {
+      background: #2f333a;
+      border: 1px solid #484e58;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-family: monospace;
+      color: #eee;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toy-frame" id="toyFrame">
+    <div class="header">
+      <span class="sub">Magic</span>
+      <span class="brand">Etch A Sketch</span>
+      <span class="sub">Screen</span>
+    </div>
+
+    <div class="screen-bezel">
+      <canvas id="screen" width="600" height="400"></canvas>
+    </div>
+
+    <div class="controls">
+      <div class="dial-group">
+        <div class="dial" id="dialX" title="Drag to rotate or use Left/Right arrows"></div>
+        <span class="dial-label">Horizontal</span>
+      </div>
+
+      <div class="center-actions">
+        <button class="shake-btn" id="shakeBtn">Shake to Clear</button>
+      </div>
+
+      <div class="dial-group">
+        <div class="dial" id="dialY" title="Drag to rotate or use Up/Down arrows"></div>
+        <span class="dial-label">Vertical</span>
+      </div>
+    </div>
+  </div>
+
+  <p class="instructions">
+    Use <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> arrow keys (or <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>), or drag the white dials. Press <kbd>Space</kbd> to shake.
+  </p>
+
+  <script>
+    const canvas = document.getElementById('screen');
+    const ctx = canvas.getContext('2d');
+    const toyFrame = document.getElementById('toyFrame');
+    const dialX = document.getElementById('dialX');
+    const dialY = document.getElementById('dialY');
+    const shakeBtn = document.getElementById('shakeBtn');
+
+    // Stylus state
+    let x = canvas.width / 2;
+    let y = canvas.height / 2;
+    let angleX = 0;
+    let angleY = 0;
+    const speed = 2.2;
+    const keys = {};
+
+    // Configure line style (classic dark aluminum powder look)
+    function initCanvas() {
+      ctx.fillStyle = '#c5c9c4';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.lineWidth = 2.5;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = '#333633';
+      drawStylusDot();
+    }
+
+    function drawStylusDot() {
+      ctx.fillStyle = '#333633';
+      ctx.beginPath();
+      ctx.arc(x, y, 1.25, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function moveStylus(dx, dy) {
+      if (dx === 0 && dy === 0) return;
+
+      const nextX = Math.max(4, Math.min(canvas.width - 4, x + dx));
+      const nextY = Math.max(4, Math.min(canvas.height - 4, y + dy));
+
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(nextX, nextY);
+      ctx.stroke();
+
+      x = nextX;
+      y = nextY;
+
+      // Rotate visual dials proportionally
+      angleX += dx * 2.5;
+      angleY += dy * 2.5;
+      dialX.style.transform = `rotate(${angleX}deg)`;
+      dialY.style.transform = `rotate(${angleY}deg)`;
+    }
+
+    // Keyboard handling
+    window.addEventListener('keydown', (e) => {
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
+        e.preventDefault();
+      }
+      if (e.code === 'Space') {
+        shakeScreen();
+        return;
+      }
+      keys[e.code] = true;
+    });
+
+    window.addEventListener('keyup', (e) => {
+      keys[e.code] = false;
+    });
+
+    // Smooth animation loop for keyboard movement
+    function updateLoop() {
+      let dx = 0;
+      let dy = 0;
+
+      if (keys['ArrowLeft'] || keys['KeyA']) dx -= speed;
+      if (keys['ArrowRight'] || keys['KeyD']) dx += speed;
+      if (keys['ArrowUp'] || keys['KeyW']) dy -= speed;
+      if (keys['ArrowDown'] || keys['KeyS']) dy += speed;
+
+      if (dx !== 0 || dy !== 0) {
+        moveStylus(dx, dy);
+      }
+
+      requestAnimationFrame(updateLoop);
+    }
+
+    // Interactive Dial Dragging (Mouse & Touch)
+    function setupDialDrag(dialElement, axis) {
+      let isDragging = false;
+      let lastAngle = 0;
+
+      function getAngle(clientX, clientY) {
+        const rect = dialElement.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        return Math.atan2(clientY - centerY, clientX - centerX) * (180 / Math.PI);
+      }
+
+      const startDrag = (clientX, clientY) => {
+        isDragging = true;
+        lastAngle = getAngle(clientX, clientY);
+      };
+
+      const onDrag = (clientX, clientY) => {
+        if (!isDragging) return;
+        const currentAngle = getAngle(clientX, clientY);
+        let delta = currentAngle - lastAngle;
+
+        // Handle wrap-around at -180/180 boundary
+        if (delta > 180) delta -= 360;
+        if (delta < -180) delta += 360;
+
+        lastAngle = currentAngle;
+        const moveAmount = delta * 0.45;
+
+        if (axis === 'x') {
+          moveStylus(moveAmount, 0);
+        } else {
+          moveStylus(0, moveAmount);
+        }
+      };
+
+      const stopDrag = () => {
+        isDragging = false;
+      };
+
+      dialElement.addEventListener('mousedown', (e) => startDrag(e.clientX, e.clientY));
+      window.addEventListener('mousemove', (e) => onDrag(e.clientX, e.clientY));
+      window.addEventListener('mouseup', stopDrag);
+
+      dialElement.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        startDrag(e.touches[0].clientX, e.touches[0].clientY);
+      }, { passive: false });
+
+      window.addEventListener('touchmove', (e) => {
+        if (isDragging) {
+          onDrag(e.touches[0].clientX, e.touches[0].clientY);
+        }
+      }, { passive: false });
+Use code with caution.
+window.addEventListener('touchend', stopDrag);
+}
+// Shake to clear effect (gradual fade like real aluminum powder)
+function shakeScreen() {
+toyFrame.classList.remove('shaking');
+void toyFrame.offsetWidth; // trigger reflow
+toyFrame.classList.add('shaking');
+let fades = 0;
+const fadeInterval = setInterval(() => {
+ctx.fillStyle = 'rgba(197, 201, 196, 0.35)';
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+fades++;
+if (fades >= 8) {
+clearInterval(fadeInterval);
+ctx.fillStyle = '#c5c9c4';
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+drawStylusDot();
+}
+}, 60);
+}
+shakeBtn.addEventListener('click', shakeScreen);
+// Initialize everything
+setupDialDrag(dialX, 'x');
+setupDialDrag(dialY, 'y');
+initCanvas();
+requestAnimationFrame(updateLoop);
